@@ -1,4 +1,8 @@
+import 'dart:math';
+
+import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_shake_animated/flutter_shake_animated.dart';
 
 import 'enhancement_simulator.dart';
 
@@ -34,10 +38,11 @@ class MyApp extends StatelessWidget {
         //
         // This works for code too, not just values: Most code changes can be
         // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.green,brightness: Brightness.dark),
+        colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.green, brightness: Brightness.dark),
         useMaterial3: true,
       ),
-      home:  EnhancementPage(),
+      home: EnhancementPage(),
     );
   }
 }
@@ -51,16 +56,23 @@ class _EnhancementPageState extends State<EnhancementPage> {
   String playerName = '';
   int currentLevel = 1;
   List<Map<String, dynamic>> logs = [];
+  bool animating = false;
+  AnimationController? controller;
+  String buttonText = '开始强化'; // 添加按钮文本
+  ConfettiController? _controllerBottomCenter;
 
-  void simulateEnhancement() {
-    final result = EnhancementSimulator.simulateSingleEnhancement(playerName, currentLevel);
-    setState(() {
-      currentLevel = result['currentLevel'];
-      logs.insert(0, {
-        'log': result['log'],
-        'success': result['log'].contains('成功'),
-      });
-    });
+
+  @override
+  void initState() {
+    super.initState();
+    _controllerBottomCenter =
+        ConfettiController(duration: const Duration(seconds: 3));
+  }
+
+  @override
+  void dispose() {
+    _controllerBottomCenter?.dispose();
+    super.dispose();
   }
 
   Color getLevelColor(int level) {
@@ -79,58 +91,122 @@ class _EnhancementPageState extends State<EnhancementPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Enhancement Simulator'),
+        title: Text('FC Online 强化模拟系统'),
       ),
-      body: Padding(
-        padding: EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            TextField(
-              decoration: InputDecoration(labelText: '请输入姓名'),
-              onChanged: (value) {
-                playerName = value;
+      body: Stack(children: [
+
+        _buildBody(),
+        _buildSuccessAnim(),
+      ],),
+    );
+  }
+
+  _buildBody() {
+    return Padding(
+      padding: EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          TextField(
+            decoration: InputDecoration(labelText: '请输入姓名'),
+            onChanged: (value) {
+              playerName = value;
+            },
+          ),
+          SizedBox(height: 20),
+          DropdownButton<int>(
+            value: currentLevel,
+            onChanged: (int? newValue) {
+              setState(() {
+                currentLevel = newValue!;
+              });
+            },
+            items: List.generate(9, (index) => index + 1)
+                .map<DropdownMenuItem<int>>((int value) {
+              return DropdownMenuItem<int>(
+                value: value,
+                child: Text('强化等级 $value',style: TextStyle(color: getLevelColor(value))),
+              );
+            }).toList(),
+          ),
+          SizedBox(height: 20),
+          ShakeWidget(
+            duration: Duration(seconds: 3),
+            shakeConstant: ShakeDefaultConstant2(),
+            autoPlay: false,
+            enableWebMouseHover: false,
+            onController: (controller) {
+              this.controller = controller;
+            },
+            child: ElevatedButton(
+              onPressed: () async {
+                if (!animating) {
+                  controller?.repeat();
+                  setState(() {
+                    animating = true;
+                    buttonText = '正在强化'; // 修改按钮文本为“正在强化”
+                  });
+                  await Future.delayed(Duration(seconds: 3));
+                  final result = EnhancementSimulator.simulateSingleEnhancement(
+                      playerName, currentLevel);
+                  setState(() {
+                    currentLevel = result['currentLevel'];
+                    var isSuccess = result['log'].contains('成功');
+                    logs.insert(0, {
+                      'log': result['log'],
+                      'success': isSuccess,
+                    });
+
+                    if(isSuccess){
+                      _controllerBottomCenter?.play();
+
+                    }
+
+
+                    animating = false;
+                    controller?.reset();
+                    buttonText = '开始强化'; // 恢复按钮文本为原始值
+                  });
+                }
               },
+              child: Text(buttonText), // 使用 buttonText 作为按钮文本
             ),
-            SizedBox(height: 20),
-            DropdownButton<int>(
-              value: currentLevel,
-              onChanged: (int? newValue) {
-                setState(() {
-                  currentLevel = newValue!;
-                });
-              },
-              items: List.generate(9, (index) => index + 1)
-                  .map<DropdownMenuItem<int>>((int value) {
-                return DropdownMenuItem<int>(
-                  value: value,
-                  child: Text('强化等级 $value', style: TextStyle(color: getLevelColor(value))),
-                );
-              }).toList(),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                simulateEnhancement();
-              },
-              child: Text('开始强化'),
-            ),
-            SizedBox(height: 20),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: logs.map((log) {
-                    return Text(
-                      log['log'],
-                      style: TextStyle(color: log['success'] ? Colors.green : Colors.red),
-                    );
-                  }).toList(),
-                ),
+          ),
+          SizedBox(height: 20),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: logs.map((log) {
+                  return Text(
+                    log['log'],
+                    style: TextStyle(
+                        color: log['success'] ? Colors.green : Colors.red),
+                  );
+                }).toList(),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  _buildSuccessAnim() {
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: ConfettiWidget(
+        confettiController: _controllerBottomCenter!,
+        blastDirection: -pi / 2,
+        emissionFrequency: 0.0001,
+        numberOfParticles: 500,
+        maxBlastForce: 1000,
+        minBlastForce: 200,
+        gravity: 0.1,
+        minimumSize: Size(10, 10),
+        maximumSize: Size(15, 15),
+        blastDirectionality: BlastDirectionality.explosive,
+
       ),
     );
   }

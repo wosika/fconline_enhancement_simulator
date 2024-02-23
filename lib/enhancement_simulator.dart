@@ -1,7 +1,6 @@
 import 'dart:math';
 
 void main() {
-  final simulator = EnhancementSimulator();
   final name = 'icon 罗纳尔多'; // 用户输入的姓名
   var currentLevel = 7; // 初始强化等级
 
@@ -11,15 +10,15 @@ void main() {
   //   final log = result['log'];
   //   print(log);
   // }
-  final result = simulator.simulateSingleEnhancement(name, currentLevel);
+  final result = EnhancementSimulator.simulateSingleEnhancement(name, currentLevel);
   currentLevel = result['currentLevel'];
   final log = result['log'];
   print(log);
-  //print('玩家 $name 的强化已完成，最终等级为 $currentLevel');
+ // print('$name 的强化已完成，最终等级为 $currentLevel');
 }
 
 class EnhancementSimulator {
-  final List<double> probabilities = [
+  static final List<double> probabilities = [
     1.0, // 1->2的概率是100%
     0.81, // 2->3的概率是81%
     0.64, // 3->4的概率是64%
@@ -31,7 +30,8 @@ class EnhancementSimulator {
     0.02, // 9->10的概率是2%
   ];
 
-  Map<String, dynamic> simulateSingleEnhancement(String playerName, int currentLevel) {
+  static Map<String, dynamic> simulateSingleEnhancement(
+      String playerName, int currentLevel) {
     final enhancementLog = StringBuffer();
 
     final random = Random().nextDouble(); // 生成一个0到1之间的随机数

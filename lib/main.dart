@@ -1,8 +1,8 @@
 import 'dart:math';
 
-import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_shake_animated/flutter_shake_animated.dart';
+import 'package:lottie/lottie.dart';
 
 import 'enhancement_simulator.dart';
 
@@ -57,21 +57,25 @@ class _EnhancementPageState extends State<EnhancementPage> {
   int currentLevel = 1;
   List<Map<String, dynamic>> logs = [];
   bool animating = false;
+  bool isSuccess = false;
   AnimationController? controller;
   String buttonText = '开始强化'; // 添加按钮文本
-  ConfettiController? _controllerBottomCenter;
-
+  // ConfettiController? _controllerBottomCenter;
+  // ConfettiController? _controllerTopCenter;
 
   @override
   void initState() {
     super.initState();
-    _controllerBottomCenter =
-        ConfettiController(duration: const Duration(seconds: 3));
+    // _controllerBottomCenter =
+    //     ConfettiController(duration: const Duration(seconds: 3));
+    // _controllerTopCenter =
+    //     ConfettiController(duration: const Duration(days: 1));
   }
 
   @override
   void dispose() {
-    _controllerBottomCenter?.dispose();
+    // _controllerBottomCenter?.dispose();
+    // _controllerTopCenter?.dispose();
     super.dispose();
   }
 
@@ -93,11 +97,18 @@ class _EnhancementPageState extends State<EnhancementPage> {
       appBar: AppBar(
         title: Text('FC Online 强化模拟系统'),
       ),
-      body: Stack(children: [
+      body: Stack(
+        children: [
+          if(isSuccess)
+            _buildSuccessAnim(),
+          _buildBody(),
+          /*   _buildSuccessAnim(),
+          _buildSuccessTopAnim(),*/
+        ],
+      ),
 
-        _buildBody(),
-        _buildSuccessAnim(),
-      ],),
+
+
     );
   }
 
@@ -125,7 +136,8 @@ class _EnhancementPageState extends State<EnhancementPage> {
                 .map<DropdownMenuItem<int>>((int value) {
               return DropdownMenuItem<int>(
                 value: value,
-                child: Text('强化等级 $value',style: TextStyle(color: getLevelColor(value))),
+                child: Text('强化等级 $value',
+                    style: TextStyle(color: getLevelColor(value))),
               );
             }).toList(),
           ),
@@ -144,6 +156,7 @@ class _EnhancementPageState extends State<EnhancementPage> {
                   controller?.repeat();
                   setState(() {
                     animating = true;
+                    this.isSuccess = false;
                     buttonText = '正在强化'; // 修改按钮文本为“正在强化”
                   });
                   await Future.delayed(Duration(seconds: 3));
@@ -157,11 +170,11 @@ class _EnhancementPageState extends State<EnhancementPage> {
                       'success': isSuccess,
                     });
 
-                    if(isSuccess){
-                      _controllerBottomCenter?.play();
-
+                    if (isSuccess) {
+                      this.isSuccess = true;
+                      // _controllerBottomCenter?.play();
+                      // _controllerTopCenter?.play();
                     }
-
 
                     animating = false;
                     controller?.reset();
@@ -193,21 +206,52 @@ class _EnhancementPageState extends State<EnhancementPage> {
   }
 
   _buildSuccessAnim() {
-    return Align(
-      alignment: Alignment.bottomCenter,
-      child: ConfettiWidget(
-        confettiController: _controllerBottomCenter!,
-        blastDirection: -pi / 2,
-        emissionFrequency: 0.0001,
-        numberOfParticles: 500,
-        maxBlastForce: 1000,
-        minBlastForce: 200,
-        gravity: 0.1,
-        minimumSize: Size(10, 10),
-        maximumSize: Size(15, 15),
-        blastDirectionality: BlastDirectionality.explosive,
+    return Stack(
+      children: [
+        Align(alignment: Alignment.topLeft,child: Lottie.asset('assets/loop.json',fit: BoxFit.cover)),
+        Align(alignment: Alignment.topRight,child: Lottie.asset('assets/loop.json',fit: BoxFit.cover)),
+        Align(alignment: Alignment.topLeft,child: Lottie.asset('assets/shot.json',fit: BoxFit.cover,repeat: false)),
+        Align(alignment: Alignment.topRight,child: Lottie.asset('assets/shot.json',fit: BoxFit.cover,repeat: false)),
 
-      ),
+
+      ],
     );
   }
+
+// _buildSuccessAnim() {
+//   return Align(
+//     alignment: Alignment.bottomCenter,
+//     child: ConfettiWidget(
+//       confettiController: _controllerBottomCenter!,
+//       blastDirection: -pi / 2,
+//       emissionFrequency: 0.0001,
+//       numberOfParticles: 500,
+//       maxBlastForce: 1000,
+//       minBlastForce: 200,
+//       gravity: 0.1,
+//       minimumSize: Size(10, 10),
+//       maximumSize: Size(15, 15),
+//       blastDirectionality: BlastDirectionality.explosive,
+//     ),
+//   );
+// }
+
+// _buildSuccessTopAnim() {
+//   return Align(
+//     alignment: Alignment.topCenter,
+//     child: ConfettiWidget(
+//       confettiController: _controllerTopCenter!,
+//       blastDirection: -pi / 2,
+//       emissionFrequency: 0.001,
+//       numberOfParticles: 100,
+//       maxBlastForce: 2,
+//       minBlastForce: 1,
+//       shouldLoop: true,
+//       gravity: 0.1,
+//       minimumSize: Size(100, 100),
+//       maximumSize: Size(100, 100),
+//       blastDirectionality: BlastDirectionality.explosive,
+//     ),
+//   );
+// }
 }

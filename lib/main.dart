@@ -62,7 +62,6 @@ class _EnhancementPageState extends State<EnhancementPage> {
   String buttonText = '开始强化'; // 添加按钮文本
   // ConfettiController? _controllerBottomCenter;
   // ConfettiController? _controllerTopCenter;
-
   @override
   void initState() {
     super.initState();
@@ -118,14 +117,19 @@ class _EnhancementPageState extends State<EnhancementPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          TextField(
-            decoration: InputDecoration(labelText: '请输入姓名'),
+          TextFormField(
+            cursorHeight: 15,
+
+            decoration: InputDecoration(labelText: '请输入球员姓名（不输入也可以）'),
             onChanged: (value) {
               playerName = value;
             },
           ),
           SizedBox(height: 20),
           DropdownButton<int>(
+
+            focusColor: Colors.transparent,
+            elevation: 0,
             value: currentLevel,
             onChanged: (int? newValue) {
               setState(() {
@@ -136,7 +140,7 @@ class _EnhancementPageState extends State<EnhancementPage> {
                 .map<DropdownMenuItem<int>>((int value) {
               return DropdownMenuItem<int>(
                 value: value,
-                child: Text('强化等级 $value',
+                child: Text('当前强化等级 $value',
                     style: TextStyle(color: getLevelColor(value))),
               );
             }).toList(),
@@ -189,7 +193,7 @@ class _EnhancementPageState extends State<EnhancementPage> {
           Expanded(
             child: SingleChildScrollView(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: logs.map((log) {
                   return Text(
                     log['log'],
@@ -208,8 +212,8 @@ class _EnhancementPageState extends State<EnhancementPage> {
   _buildSuccessAnim() {
     return Stack(
       children: [
-        Align(alignment: Alignment.topLeft,child: Lottie.asset('assets/loop.json',fit: BoxFit.cover)),
-        Align(alignment: Alignment.topRight,child: Lottie.asset('assets/loop.json',fit: BoxFit.cover)),
+        Align(alignment: Alignment.topLeft,child: Lottie.asset('assets/loop.json',fit: BoxFit.contain)),
+        Align(alignment: Alignment.topRight,child: Lottie.asset('assets/loop.json',fit: BoxFit.contain)),
         Align(alignment: Alignment.topLeft,child: Lottie.asset('assets/shot.json',fit: BoxFit.cover,repeat: false)),
         Align(alignment: Alignment.topRight,child: Lottie.asset('assets/shot.json',fit: BoxFit.cover,repeat: false)),
 

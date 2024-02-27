@@ -37,14 +37,15 @@ class EnhancementSimulator {
     final random = Random().nextDouble(); // 生成一个0到1之间的随机数
     final successProbability = probabilities[currentLevel - 1];
 
+    String levelTips = "$currentLevel → ${currentLevel+1}";
     if (random < successProbability) {
       currentLevel++;
-      enhancementLog.write('$playerName 强化成功，当前等级 $currentLevel');
+      enhancementLog.write('$playerName $levelTips 强化成功，当前等级 $currentLevel');
     } else {
       // 强化失败
       final downLevel = max(1, Random().nextInt(currentLevel)); // 降级不低于等级1
       currentLevel = downLevel;
-      enhancementLog.write('$playerName 强化失败，降级至等级 $currentLevel');
+      enhancementLog.write('$playerName $levelTips 强化失败，降级至等级 $currentLevel');
     }
     enhancementLog.writeln();
 

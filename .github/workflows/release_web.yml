@@ -1,0 +1,45 @@
+name: GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Clone Flutter repository with master channel
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          # flutter-version: '3.16.2'
+          cache: true
+
+      - name: Install
+        run: |
+          flutter config --enable-web
+          flutter pub get
+
+      - name: Build
+        run: flutter build web --base-href=/fc/
+        #run: flutter build web
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        if: github.ref == 'refs/heads/main'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          #deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+          external_repository: wosika/wosika.github.io
+          # publish_branch: your-branch  # default: gh-pages
+          publish_branch: fc
+          publish_dir: ./build/web
+          destination_dir: fc

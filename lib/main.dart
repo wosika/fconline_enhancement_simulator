@@ -85,6 +85,10 @@ class _EnhancementPageState extends State<EnhancementPage> {
       return Color(0xFFB28675);
     } else if (level >= 5 && level <= 7) {
       return Color(0xFFC5C8C9);
+    } else if (level >= 8 && level <= 10) {
+      return Colors.yellow[700]!;
+    } else if (level >= 11 && level <= 13) {
+      return Color(0xFFE8F4FD); // 钻石色 - 浅蓝白色
     } else {
       return Colors.yellow[700]!;
     }

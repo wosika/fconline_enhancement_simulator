@@ -1,7 +1,7 @@
 import 'dart:math';
 
 void main() {
-  final name = 'icon 罗纳尔多'; // 用户输入的姓名
+  final name = 'icon tm 亨利'; // 用户输入的姓名
   var currentLevel = 7; // 初始强化等级
 
   // while (currentLevel < 10) {
@@ -26,8 +26,11 @@ class EnhancementSimulator {
     0.26, // 5->6的概率是26%
     0.15, // 6->7的概率是15%
     0.07, // 7->8的概率是7%
-    0.04, // 8->9的概率是4%
-    0.02, // 9->10的概率是2%
+    0.05, // 8->9的概率是5%
+    0.04, // 9->10的概率是4%
+    0.03, // 10->11的概率是3%
+    0.02, // 11->12的概率是2%
+    0.01, // 12->13的概率是1%
   ];
 
   static Map<String, dynamic> simulateSingleEnhancement(

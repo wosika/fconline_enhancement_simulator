@@ -140,7 +140,7 @@ class _EnhancementPageState extends State<EnhancementPage> {
                 currentLevel = newValue!;
               });
             },
-            items: List.generate(9, (index) => index + 1)
+            items: List.generate(12, (index) => index + 1)
                 .map<DropdownMenuItem<int>>((int value) {
               return DropdownMenuItem<int>(
                 value: value,
